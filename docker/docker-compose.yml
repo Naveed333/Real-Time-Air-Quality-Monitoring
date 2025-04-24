@@ -1,0 +1,23 @@
+version: "3"
+services:
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+
+  spark:
+    image: bitnami/spark
+    ports:
+      - "7077:7077"
+
+  streamlit:
+    build: ../dashboard
+    ports:
+      - "8501:8501"
+
+  airflow:
+    image: apache/airflow
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
