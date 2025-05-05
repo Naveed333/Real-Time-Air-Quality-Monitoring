@@ -2,7 +2,7 @@
 
 An end-to-end data engineering pipeline to monitor air quality in real-time using public APIs, Kafka, Spark, Airflow, ML, and Streamlit.
 
-## ✅ Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the repository
 ```bash
@@ -53,8 +53,8 @@ python train_model.py
 python predict.py
 ```
 
-## 🧪 Testing
+## Testing
 You can write test cases using `pytest` under a `/tests` directory.
 
-## 🔒 Security
+## Security
 Store secrets (API keys, credentials) in `config/secrets.env` and load them safely using environment variables.
