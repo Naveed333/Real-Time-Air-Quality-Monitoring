@@ -1,10 +1,16 @@
 import requests
+
 # import psycopg2
 from datetime import datetime
+
 # import logging
 from logging import getLogger
 
 logger = getLogger(__name__)
+
+import time
+import requests
+import streamlit as st
 
 
 def fetch_air_quality_data(api_key, latitude, longitude):
@@ -18,26 +24,20 @@ def fetch_air_quality_data(api_key, latitude, longitude):
     }
 
     try:
-        # Make the GET request to the API
         response = requests.get(url, headers=headers, params=querystring)
-
-        # Check if the response is successful
-        response.raise_for_status()
-
-        # Log the success
-        logger.info(
-            f"Successfully fetched air quality data for lat: {latitude}, lon: {longitude}"
-        )
-
-        # Print the response to check its structure
-        print(response.json())  # This will print the response for inspection
-
-        # Return the JSON data from the response
-        return response.json()
-
-    except requests.exceptions.RequestException as e:
-        # Log the error if any
-        logger.error(f"Error fetching air quality data: {e}")
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 429:  # Handle rate limiting
+            st.error("Too many requests. Please try again later.")
+            time.sleep(120)  # Wait for 60 seconds before retrying
+            return fetch_air_quality_data(
+                api_key, latitude, longitude
+            )  # Retry the request
+        else:
+            st.error(f"Error fetching air quality data: {response.status_code}")
+            return None
+    except Exception as e:
+        st.error(f"Error fetching air quality data: {str(e)}")
         return None
 
 
