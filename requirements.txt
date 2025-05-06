@@ -4,6 +4,6 @@ joblib
 streamlit
 kafka-python
 pyspark
-airflow
+apache-airflow==2.7.1
 requests
 pytest
