@@ -58,3 +58,6 @@ You can write test cases using `pytest` under a `/tests` directory.
 
 ## 🔒 Security
 Store secrets (API keys, credentials) in `config/secrets.env` and load them safely using environment variables.
+
+
+streamlit run dashboard/app.py
