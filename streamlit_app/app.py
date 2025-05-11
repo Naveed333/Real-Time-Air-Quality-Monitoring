@@ -3,18 +3,21 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 import logging
-
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-# Now your imports should work
-from data_ingestion.ingest import fetch_air_quality_data
-from data_processing.process import process_data
+import joblib
+from data_ingestion.api_client import fetch_air_quality_data
+from machine_learning.train_model import predict_air_quality  # Import predict function
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+# Load the trained model
+model = joblib.load("machine_learning/air_quality_model.pkl")
+
+
+# Function to predict the PM2.5 value for the next day using the model
+def predict_next_day_pm25(features):
+    prediction = model.predict([features])  # Predict PM2.5 for the next day
+    return prediction[0]
 
 
 # Streamlit app for visualization and alerts
@@ -70,9 +73,8 @@ def process_data(df):
 
 
 def main():
-    # api_key = "e19e6cb107mshaa406fe397a20abp162c3cjsn670651231384"  # Replace with your actual RapidAPI key
-    api_key = "89307e48a2msh4d3b023c0ca78abp19417fjsnf0868fff2816"  # Replace with your actual RapidAPI key
-
+    api_key = "e19e6cb107mshaa406fe397a20abp162c3cjsn670651231384"  # Replace with your actual RapidAPI key
+    # api_key = "89307e48a2msh4d3b023c0ca78abp19417fjsnf0868fff2816"  # Replace with your actual RapidAPI key
     # Map for selecting lat/long by clicking on it
     st.write("Click on the map to select a location.")
     world_map = folium.Map(location=[20, 0], zoom_start=2)
@@ -129,21 +131,40 @@ def main():
         # Extract the 'data' key for the air quality records
         df = pd.DataFrame(data["data"])
 
-        # Add metadata (city_name and country_code) to the DataFrame
-        df["city_name"] = data["city_name"]
-        df["country_code"] = data["country_code"]
+        # Display the data for inspection
+        st.write(df.head())  # Display the first few rows to inspect data
 
-        # Process the data (e.g., clean missing values, perform feature engineering)
-        processed_data = process_data(df)
+        # Check for required columns
+        if "pm10" in df.columns and "co" in df.columns:
+            # Fallback for missing columns
+            temperature = (
+                df["temperature"].mean() if "temperature" in df.columns else 20
+            )  # Default value for missing temperature
+            humidity = (
+                df["humidity"].mean() if "humidity" in df.columns else 50
+            )  # Default value for missing humidity
 
-        # Display the processed data in the Streamlit dashboard
-        display_dashboard(processed_data)
+            features = [
+                df["pm10"].mean(),
+                df["co"].mean(),
+                temperature,
+                humidity,
+            ]
 
-        # Send an alert based on the AQI value
-        if "aqi" in processed_data.columns:
-            send_alert(processed_data["aqi"].iloc[0])
+            # Predict next day's PM2.5 using the model
+            next_day_pm25 = predict_next_day_pm25(features)
+            st.write(f"Predicted PM2.5 for the next day: {next_day_pm25:.2f} µg/m³")
+
+            # Send an alert based on the AQI value
+            if "aqi" in df.columns:
+                send_alert(df["aqi"].iloc[0])
+            else:
+                st.write("AQI data not available!")
+
+            # Display the processed data
+            display_dashboard(df)
         else:
-            st.write("AQI data not available!")
+            st.write("Missing required columns in the data!")
 
 
 if __name__ == "__main__":

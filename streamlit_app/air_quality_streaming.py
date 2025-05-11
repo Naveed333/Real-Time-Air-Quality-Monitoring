@@ -3,11 +3,7 @@ from pyspark.sql.functions import col, from_json
 from pyspark.sql.types import StructType, StructField, FloatType, IntegerType
 
 # Initialize Spark session with Kafka support
-spark = (
-    SparkSession.builder.appName("AirQualityStreaming")
-    .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2")
-    .getOrCreate()
-)
+spark = SparkSession.builder.appName("AirQualityStreaming").getOrCreate()
 
 # Define schema for air quality data
 schema = StructType(
@@ -21,7 +17,7 @@ schema = StructType(
     ]
 )
 
-# Read data from Kafka topic (air-quality)
+# Read data from Kafka topic 'air-quality'
 air_quality_stream = (
     spark.readStream.format("kafka")
     .option("kafka.bootstrap.servers", "localhost:9092")
@@ -36,11 +32,9 @@ air_quality_df = (
     .select("data.*")
 )
 
-# Filter data: PM2.5 level > 100 as an example
-threshold = 100
-filtered_data = air_quality_df.filter(col("pm25") > threshold)
+# Filter data (example: PM2.5 > 100)
+filtered_data = air_quality_df.filter(col("pm25") > 100)
 
-# Write filtered data to the console
+# Output data to the console (or any other sink)
 query = filtered_data.writeStream.outputMode("append").format("console").start()
-
 query.awaitTermination()

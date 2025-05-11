@@ -1,3 +1,5 @@
+# train_model.py
+
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -27,5 +29,21 @@ X_train, X_test, y_train, y_test = train_test_split(
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# Save model to disk
-joblib.dump(model, "air_quality_model.pkl")
+# Save model to disk (pkl file)
+joblib.dump(model, "machine_learning/air_quality_model.pkl")
+
+
+# Define predict_air_quality function
+def predict_air_quality(features, days=1):
+    predictions = []
+    for _ in range(days):
+        prediction = model.predict([features])
+        predictions.append(prediction[0])
+        # Simple logic to update features for the next day (for example purposes)
+        features = [
+            features[0] + 10,
+            features[1] + 0.1,
+            features[2] + 1,
+            features[3] + 1,
+        ]  # Update features for next prediction
+    return predictions

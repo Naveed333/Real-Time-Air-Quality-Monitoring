@@ -1,12 +1,11 @@
 import pandas as pd
 
 
-# Data transformation function: Handle missing values, feature engineering, etc.
 def process_data(df):
-    try:
-        df = df.dropna()  # Remove missing data
-        df["hour"] = df["timestamp"].dt.hour  # Extract the hour of the day as a feature
-        return df
-    except Exception as e:
-        print(f"Error processing data: {e}")
-        return None
+    # Clean the data by dropping rows with missing values (if any)
+    df = df.dropna()
+
+    # Additional data processing can be done here
+    # For example: Add new columns, scale values, etc.
+
+    return df
