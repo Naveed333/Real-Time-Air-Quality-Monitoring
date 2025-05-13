@@ -5,6 +5,7 @@ import random
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import requests
 from kafka import KafkaProducer
+
 # from prometheus_client import Counter, start_http_server
 import json
 import time
@@ -27,10 +28,7 @@ producer = KafkaProducer(
 
 
 def generate_data_from_api(api_key, city, country):
-    # Fetch air quality data from the API
     data = fetch_air_quality_data(api_key, city, country)
-
-    # Extract relevant fields (timestamp, pm25, pm10, etc.)
     if data and "data" in data:
         air_quality_data = {
             "timestamp": time.time(),
@@ -71,13 +69,7 @@ while True:
     }
 
     if air_quality_data:
-        # vehicle_counts.labels(
-        #     sensor_id=random.choice(["S101", "S102", "S103", "S104", "S105"]),
-        #     congestion_level=random.choice(["LOW", "MEDIUM", "HIGH"]),
-        # ).inc()
-        producer.send(
-            "air_quality", air_quality_data
-        )  # Send data to 'air-quality' topic
+        producer.send("air_quality", air_quality_data)
         logger.info(f"Sent: {air_quality_data}")
     else:
         logger.error("Failed to fetch or process air quality data")

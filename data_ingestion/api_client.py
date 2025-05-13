@@ -4,18 +4,22 @@ from kafka import KafkaProducer
 import streamlit as st
 import time
 from geopy.geocoders import Nominatim  # Import geopy for geocoding
+from geopy.exc import GeocoderUnavailable
 
 # Initialize geolocator
 geolocator = Nominatim(user_agent="air_quality_app")
 
 
 def get_lat_long(city, country):
-    # Use geopy to get latitude and longitude from city and country name
-    location = geolocator.geocode(f"{city}, {country}")
-    if location:
-        return location.latitude, location.longitude
-    else:
-        st.error(f"Could not find location for {city}, {country}")
+    try:
+        location = geolocator.geocode(f"{city}, {country}", timeout=10)
+        if location:
+            return location.latitude, location.longitude
+        else:
+            st.error(f"Could not find location for {city}, {country}")
+            return None, None
+    except GeocoderUnavailable:
+        st.error("Geocoding service is unavailable. Please try again later.")
         return None, None
 
 
