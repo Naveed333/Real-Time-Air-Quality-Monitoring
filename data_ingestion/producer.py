@@ -57,15 +57,48 @@ country = "US"  # Example country
 # Send real air quality data to Kafka every 5 seconds
 while True:
     # air_quality_data = generate_data_from_api(api_key, city, country)
+    locations = {
+        "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Miami"],
+        "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"],
+        "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Cancun", "Puebla"],
+        "United Kingdom": [
+            "London",
+            "Manchester",
+            "Birmingham",
+            "Edinburgh",
+            "Liverpool",
+        ],
+        "Germany": ["Berlin", "Munich", "Frankfurt", "Hamburg", "Stuttgart"],
+        "France": ["Paris", "Lyon", "Marseille", "Toulouse", "Nice"],
+        "China": ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu"],
+        "India": ["New Delhi", "Mumbai", "Bangalore", "Kolkata", "Chennai"],
+        "Japan": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Sapporo"],
+        "South Africa": [
+            "Cape Town",
+            "Johannesburg",
+            "Pretoria",
+            "Durban",
+            "Port Elizabeth",
+        ],
+        "Brazil": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza"],
+    }
+    country = random.choice(
+        list(locations.keys())
+    )  # Randomly select a country from the list
+    city = random.choice(locations[country])  # Select a city from the chosen country
+
     air_quality_data = {
         "timestamp": time.time(),
-        "pm25": random.randint(0, 150),
-        "pm10": random.randint(0, 200),
-        "co": random.uniform(0, 10),
-        "temperature": random.uniform(15, 30),
-        "humidity": random.uniform(30, 80),
-        "city": "SampleCity",  # Include city attribute
-        "aqi": random.randint(0, 200),  # Include AQI attribute
+        "pm25": random.randint(0, 150),  # PM2.5 values can range from 0 to 150 µg/m³
+        "pm10": random.randint(0, 200),  # PM10 values can range from 0 to 200 µg/m³
+        "co": random.uniform(0, 9),  # CO levels typically range from 0 to 9 ppm
+        "temperature": random.uniform(
+            15, 35
+        ),  # Temperature in Celsius, realistic range (15°C to 35°C)
+        "humidity": random.uniform(30, 80),  # Humidity in percentage (30% to 80%)
+        "country": country,
+        "city": city,  # City name for context
+        "aqi": random.randint(0, 300),  # AQI (Air Quality Index), realistic range
     }
 
     if air_quality_data:

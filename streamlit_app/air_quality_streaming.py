@@ -23,8 +23,9 @@ schema = StructType(
         StructField("co", FloatType(), True),  # CO as a float
         StructField("temperature", FloatType(), True),  # Temperature as a float
         StructField("humidity", FloatType(), True),  # Humidity as a float
-        StructField("latitude", FloatType(), True),  # Latitude as a float
-        StructField("longitude", FloatType(), True),  # Longitude as a float
+        StructField("city", StringType(), True),  # City as a string
+        StructField("country", StringType(), True),  # Country as a string
+        StructField("aqi", IntegerType(), True),  # AQI as an integer
     ]
 )
 
@@ -34,7 +35,7 @@ spark.sparkContext.setLogLevel("WARN")
 # InfluxDB Client setup
 influx_client = InfluxDBClient(
     url="http://localhost:8086",
-    token="mwj5XYtzRXsAxvDkV929xDDXWEwgYYJYD4K0eJMbpbnEJvfrmoGj0L2YX2WXGf9c2z_M-9JJNghQ6d32fj-7Cw==",
+    token="ebA-TkLJ7coOZClRI5iW_8fESVIuOTkfIWbPR7QbiqR4ifmxnNuPbw0rAfaoXcme9AhdiiaXLNanKDZTLNNLFA==",
     org="de",
 )
 write_api = influx_client.write_api(write_options=WriteOptions(batch_size=1))
@@ -93,6 +94,9 @@ while True:
             & col("co").isNotNull()
             & col("temperature").isNotNull()
             & col("humidity").isNotNull()
+            & col("city").isNotNull()
+            & col("country").isNotNull()
+            & col("aqi").isNotNull()
         )
 
         # Handle the data and send it to InfluxDB
@@ -100,12 +104,14 @@ while True:
             # Create a point for InfluxDB
             point = (
                 Point("air_quality_data")
-                .tag("sensor_id", row["timestamp"])
+                .tag("city", row["city"])
+                .tag("country", row["country"])
                 .field("pm25", int(row["pm25"]))
                 .field("pm10", int(row["pm10"]))
                 .field("co", float(row["co"]))
                 .field("temperature", float(row["temperature"]))
                 .field("humidity", float(row["humidity"]))
+                .field("aqi", int(row["aqi"]))
                 .time(time.time_ns())
             )
 
