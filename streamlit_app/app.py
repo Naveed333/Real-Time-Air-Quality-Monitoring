@@ -13,6 +13,13 @@ logger = logging.getLogger(__name__)
 # Load the trained model
 model = joblib.load("machine_learning/air_quality_model.pkl")
 
+# Country and city mapping
+country_city_map = {
+    "US": ["Raleigh", "New York"],
+    "UK": ["London"],
+    "Canada": ["Toronto", "Vancouver"],
+}
+
 
 # Function to predict the PM2.5 value for the next day using the model
 def predict_next_day_pm25(features):
@@ -80,12 +87,15 @@ def display_map(lat, long):
 def main():
     # api_key = "e19e6cb107mshaa406fe397a20abp162c3cjsn670651231384"  # Replace with your actual RapidAPI key
     api_key = "89307e48a2msh4d3b023c0ca78abp19417fjsnf0868fff2816"  # Replace with your actual RapidAPI key
-    # Allow the user to select a city and country
-    city = st.selectbox("Select City", ["Raleigh", "London", "New York"])
-    country = st.selectbox("Select Country", ["US", "UK", "Canada"])
+
+    # Allow the user to select a country
+    selected_country = st.selectbox("Select Country", ["US", "UK", "Canada"])
+
+    # Based on selected country, allow the user to select a city
+    selected_city = st.selectbox("Select City", country_city_map[selected_country])
 
     # Fetch air quality data from the API
-    data = fetch_air_quality_data(api_key, city, country)
+    data = fetch_air_quality_data(api_key, selected_city, selected_country)
 
     if data:
         # Extract the 'data' key for the air quality records
