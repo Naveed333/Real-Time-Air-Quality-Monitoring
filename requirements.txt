@@ -11,3 +11,4 @@ streamlit-folium
 pandas
 requests
 pytest
+geopy

@@ -27,7 +27,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"  # Ensure this is pointing to the correct Zookeeper hostname
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181" # Ensure this is pointing to the correct Zookeeper hostname
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -38,10 +38,27 @@ services:
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Add JMX Exporter for Prometheus
+      KAFKA_OPTS: "-javaagent:/usr/share/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar=7071:/usr/share/jmx-exporter/kafka-broker.yml"
+    volumes:
+      - ./jmx_exporter/jmx_prometheus_javaagent-0.20.0.jar:/usr/share/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar # Ensure this file exists locally and is not a directory
+      - ./jmx_exporter/kafka-broker.yml:/usr/share/jmx-exporter/kafka-broker.yml # Optional: If you have a configuration file for Kafka exporter
     depends_on:
       - zoo1
     networks:
       - kafka_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # Mount Prometheus config
+    networks:
+      - kafka_network # Ensuring the correct network
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
 
   # Streamlit App (Main Application for monitoring)
   streamlit_app:
@@ -74,6 +91,30 @@ services:
     networks:
       - kafka_network
 
+  # InfluxDB service
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - "8086:8086" # Exposes InfluxDB UI and API
+    environment:
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: adminpassword
+      INFLUXDB_DB: air_quality_data
+    volumes:
+      - influxdb_data:/var/lib/influxdb # Persist data
+    networks:
+      - kafka_network
+  # Air Quality Exporter service
+  air_quality_exporter:
+    build: ./air_quality_exporter # Path to your air_quality_exporter directory
+    ports:
+      - "8000:8000" # Exposing metrics on port 8000
+    depends_on:
+      - postgres # Ensuring that the exporter starts only after PostgreSQL is up
+    networks:
+      - kafka_network
+
   # PostgreSQL (Optional, for storing historical air quality data)
   postgres:
     image: postgres:latest
@@ -89,6 +130,7 @@ services:
 
 volumes:
   grafana_data:
+  influxdb_data:
   postgres_data:
 
 networks:
