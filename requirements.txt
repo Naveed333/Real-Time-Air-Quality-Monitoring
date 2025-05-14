@@ -1,6 +1,7 @@
 requests
 kafka-python
-pyspark>=3.3.0
+# pyspark>=3.3.0
+geopy
 folium
 streamlit
 joblib
