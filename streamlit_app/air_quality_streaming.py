@@ -35,7 +35,7 @@ spark.sparkContext.setLogLevel("WARN")
 # InfluxDB Client setup
 influx_client = InfluxDBClient(
     url="http://localhost:8086",
-    token="ebA-TkLJ7coOZClRI5iW_8fESVIuOTkfIWbPR7QbiqR4ifmxnNuPbw0rAfaoXcme9AhdiiaXLNanKDZTLNNLFA==",
+    token="bhSfY5h3qEqGTyrtKAU7hnA5cQKJuKpiJIHaEVyozy7SzOE4aJfIMvSabvzrRwmAnlyrWLBJBYzP5Hr1E1wbQA==",
     org="de",
 )
 write_api = influx_client.write_api(write_options=WriteOptions(batch_size=1))

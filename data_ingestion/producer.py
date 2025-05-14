@@ -48,7 +48,8 @@ def generate_data_from_api(api_key, city, country):
 
 
 # Example usage with dynamic city and country
-api_key = "e19e6cb107mshaa406fe397a20abp162c3cjsn670651231384"  # Replace with your actual RapidAPI key
+api_key = "475e129254mshf6f9912ec6b5fb6p1b2ed5jsne0122d27e56a"  # Replace with your actual RapidAPI key
+
 # api_key = "89307e48a2msh4d3b023c0ca78abp19417fjsnf0868fff2816"  # Replace with your actual RapidAPI key
 # You can change the city and country dynamically
 city = "Raleigh"  # Example city
@@ -87,19 +88,7 @@ while True:
     )  # Randomly select a country from the list
     city = random.choice(locations[country])  # Select a city from the chosen country
 
-    air_quality_data = {
-        "timestamp": time.time(),
-        "pm25": random.randint(0, 150),  # PM2.5 values can range from 0 to 150 µg/m³
-        "pm10": random.randint(0, 200),  # PM10 values can range from 0 to 200 µg/m³
-        "co": random.uniform(0, 9),  # CO levels typically range from 0 to 9 ppm
-        "temperature": random.uniform(
-            15, 35
-        ),  # Temperature in Celsius, realistic range (15°C to 35°C)
-        "humidity": random.uniform(30, 80),  # Humidity in percentage (30% to 80%)
-        "country": country,
-        "city": city,  # City name for context
-        "aqi": random.randint(0, 300),  # AQI (Air Quality Index), realistic range
-    }
+    air_quality_data = generate_data_from_api(api_key, city, country)
 
     if air_quality_data:
         producer.send("air_quality", air_quality_data)

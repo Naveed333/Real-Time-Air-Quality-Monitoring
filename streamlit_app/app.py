@@ -6,12 +6,15 @@ import logging
 import joblib
 from data_ingestion.api_client import fetch_air_quality_data
 from machine_learning.train_model import predict_air_quality  # Import predict function
+from tensorflow.keras.models import load_model
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Load the trained model
-model = joblib.load("machine_learning/air_quality_model.pkl")
+# model = joblib.load("machine_learning/air_quality_model.pkl")
+# model = joblib.load("machine_learning//scaler.pkl")
+model = load_model("machine_learning/lstm_model.keras")
 
 # Country and city mapping
 country_city_map = {
@@ -85,8 +88,9 @@ def display_map(lat, long):
 
 
 def main():
-    # api_key = "e19e6cb107mshaa406fe397a20abp162c3cjsn670651231384"  # Replace with your actual RapidAPI key
-    api_key = "89307e48a2msh4d3b023c0ca78abp19417fjsnf0868fff2816"  # Replace with your actual RapidAPI key
+    # api_key = "e19e6cb107mshaa406fe397a20abp162c3cjsn670651231384" 
+    # api_key = "89307e48a2msh4d3b023c0ca78abp19417fjsnf0868fff2816"
+    api_key = "475e129254mshf6f9912ec6b5fb6p1b2ed5jsne0122d27e56a"
 
     # Allow the user to select a country
     selected_country = st.selectbox("Select Country", ["US", "UK", "Canada"])

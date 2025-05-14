@@ -89,23 +89,9 @@ services:
     networks:
       - kafka_network
 
-  # PostgreSQL (Optional, for storing historical air quality data)
-  postgres:
-    image: postgres:latest
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: air_quality_user
-      POSTGRES_PASSWORD: air_quality_password
-      POSTGRES_DB: air_quality_db
-    ports:
-      - "5433:5432"
-    networks:
-      - kafka_network
-
 volumes:
   grafana_data:
   influxdb_data:
-  postgres_data:
 
 networks:
   kafka_network:
